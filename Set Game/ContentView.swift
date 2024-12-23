@@ -7,15 +7,18 @@
 
 import SwiftUI
 
+
+
+//MARK: - Diamond
+
+
+
+
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+      StripedSquiggle(color: .red)
+        .frame(width: 50, height: 80)
+        
     }
 }
 
