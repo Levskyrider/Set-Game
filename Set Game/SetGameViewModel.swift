@@ -10,9 +10,6 @@ import SwiftUI
 class SetGameViewModel: ObservableObject {
   @Published private var model: SetGame
   
- 
- // var selectedCards: [Card] = []
-  
   var cardsInGame: [Card] {
     get {
       return model.cardsInGame
@@ -25,9 +22,6 @@ class SetGameViewModel: ObservableObject {
   
   func selectCard(_ card: Card) {
     model.selectCard(card)
-    print("Good")
-  
-    //selectedCards.append(card)
   }
 
   
