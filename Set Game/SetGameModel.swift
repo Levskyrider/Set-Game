@@ -99,8 +99,23 @@ struct SetGame {
   mutating func selectCard(_ card: Card) {
     if let choosenIndex = allCards.firstIndex(where: { $0.id == card.id }) {
       
+      //MARK: - Remove card if it was selected before
+      guard !selectedCards.compactMap({$0.id}).contains(card.id) else {
+        allCards[choosenIndex].isSelected = false
+        if let choosenIndex = cardsInGame.firstIndex(where: { $0.id == card.id }) {
+          cardsInGame[choosenIndex].isSelected = false
+        }
+        if let choosenIndex = selectedCards.firstIndex(where: { $0.id == card.id }) {
+          selectedCards[choosenIndex].isSelected = false
+          selectedCards.remove(at: choosenIndex)
+        }
+        return
+      }
+      
+      //MARK: - If there are less than 3 cards
       if selectedCards.count < 3 {
         
+        //MARK: - Append new card
         selectedCards.append(allCards[choosenIndex])
         allCards[choosenIndex].isSelected = true
         if let choosenIndex = cardsInGame.firstIndex(where: { $0.id == card.id }) {
@@ -108,7 +123,10 @@ struct SetGame {
         }
         print("Ok")
         
+        //MARK: - If 3 cards selected
         if selectedCards.count == 3 {
+          
+          //MARK: - If mismatch
           if findSets(from: selectedCards).isEmpty {
             for card in selectedCards {
               if let cardIndex = allCards.firstIndex(where: { $0.id == card.id }) {
@@ -116,6 +134,8 @@ struct SetGame {
               }
             }
           } else {
+            
+            //MARK: - If match
             for card in selectedCards {
               if let cardIndex = allCards.firstIndex(where: { $0.id == card.id }) {
                 allCards[cardIndex].isMatched = true
@@ -135,6 +155,7 @@ struct SetGame {
         
       } else if selectedCards.count == 3 {
         
+        //MARK: - If already 3 cards and new appends - check if all cards matched
         var allCardsMatcherd = true
         for card in selectedCards{
           if !card.isMatched {
@@ -142,6 +163,8 @@ struct SetGame {
             print("OMASUSDNSDKNSKD")
           }
         }
+        
+        //MARK: - If 3 cards matched
         if allCardsMatcherd {
           //Заменить карты
           var availableElements = allCards.filter { !selectedCards.contains($0) && !cardsInGame.contains($0) }.shuffled()
@@ -164,11 +187,17 @@ struct SetGame {
           }
           
         } else {
+          //MARK: - If 3 cards mismatched
           for card in selectedCards {
             if let choosenIndex = allCards.firstIndex(where: { $0.id == card.id }) {
               allCards[choosenIndex].isSelected = false
               allCards[choosenIndex].isMatched = false
               allCards[choosenIndex].isMismatched = false
+            }
+            if let choosenIndex = cardsInGame.firstIndex(where: { $0.id == card.id }) {
+              cardsInGame[choosenIndex].isSelected = false
+              cardsInGame[choosenIndex].isMatched = false
+              cardsInGame[choosenIndex].isMismatched = false
             }
           }
           selectedCards = []
