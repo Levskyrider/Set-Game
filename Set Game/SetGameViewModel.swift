@@ -23,9 +23,9 @@ class SetGameViewModel: ObservableObject {
   func selectCard(_ card: Card) {
     model.selectCard(card)
   }
-
   
 }
+
 
 func getCountAndFigureForCard(_ card: Card) -> (Int, any View) {
   let count = card.figuresCount.rawValue
