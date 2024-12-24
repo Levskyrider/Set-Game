@@ -14,8 +14,9 @@ struct SetGameView: View {
   var body: some View {
     cards
       .animation(.default, value: viewModel.cardsInGame)
+    
     Button("Find set") {
-      print(findSets(from: viewModel.cardsInGame))
+      print(viewModel.findSets())
     }
   }
   
@@ -24,7 +25,6 @@ struct SetGameView: View {
       CardView(card: card)
         .padding(15)
         .onTapGesture {
-          print("GGWP")
           viewModel.selectCard(card)
         }
     }
@@ -40,7 +40,6 @@ struct CardView: View {
   var body: some View {
     let (count, figureView) = getCountAndFigureForCard(card)
     
-
     ZStack {
       Rectangle()
         .fill(Color.white)

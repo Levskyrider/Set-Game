@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct EllipseShape: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.addEllipse(in: rect)
-        return path
-    }
+  func path(in rect: CGRect) -> Path {
+    var path = Path()
+    path.addEllipse(in: rect)
+    return path
+  }
 }
 
 #Preview {
-    EllipseShape()
+  EllipseShape()
     .fill(Color.red)
 }
