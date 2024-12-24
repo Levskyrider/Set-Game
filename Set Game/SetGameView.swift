@@ -22,7 +22,8 @@ struct SetGameView: View {
   
   private var cards: some View {
     AspectVGrid(viewModel.cardsInGame, aspectRatio: aspectRatio) { card in
-      CardView(card: card)
+      let (count, figureView)  = viewModel.getCountAndFigureForCard(card)
+      CardView(card: card, itemCount: count, figureView: figureView)
         .padding(15)
         .onTapGesture {
           viewModel.selectCard(card)
@@ -36,16 +37,17 @@ struct SetGameView: View {
 
 struct CardView: View {
   let card: Card
+  let itemCount: Int
+  let figureView: any View
   
   var body: some View {
-    let (count, figureView) = getCountAndFigureForCard(card)
     
     ZStack {
       Rectangle()
         .fill(Color.white)
         .stroke(card.isSelected ? (card.isMismatched ? Color.red : (card.isMatched ? Color.green : Color.yellow)) : Color.gray, lineWidth: 5)
       VStack {
-        ForEach(0..<count, id: \.self) { _ in
+        ForEach(0..<itemCount, id: \.self) { _ in
           AnyView(figureView)
         }
       }
