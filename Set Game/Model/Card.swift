@@ -39,6 +39,12 @@ enum FigureColor {
   }
 }
 
+enum CardGameStatus {
+  case inStock
+  case inGame
+  case isMatched
+}
+
 struct Card: Equatable, Identifiable, CustomDebugStringConvertible {
   var id: String
   
@@ -52,6 +58,8 @@ struct Card: Equatable, Identifiable, CustomDebugStringConvertible {
   
   //When in set and all cards mismatched
   var isMismatched: Bool = false
+  
+  var cardGameStatus: CardGameStatus = .inStock
   
   var debugDescription: String {
     return "\(id): \(figure) \(figuresCount) \(figureFilling), \(figureColor)"

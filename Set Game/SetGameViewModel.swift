@@ -12,7 +12,7 @@ class SetGameViewModel: ObservableObject {
   
   var cardsInGame: [Card] {
     get {
-      return model.cardsInGame
+      return model.cardsInGameRepresenting
     }
   }
   

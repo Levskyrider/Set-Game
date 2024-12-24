@@ -9,14 +9,19 @@ import Foundation
 
 struct SetGame {
   
-  var allCards: [Card]
-  var selectedCards: [Card] = []
-  var matchedCards: [Card] = []
-  var cardsInGame: [Card] = []
+  var allCards: [String: Card] // Dictionary with cards with access by ID
+  var selectedCards: [String] = []
+  var matchedCards: [String] = []
+  var cardsInGame: [String] = []
+  
+  var cardsInGameRepresenting: [Card] {
+    cardsInGame.compactMap { allCards[$0] }
+  }
   
   init() {
-    allCards = SetGame.generateAllCards()
-    cardsInGame = Array(allCards.shuffled().prefix(12))
+    let cards = SetGame.generateAllCards()
+    allCards = Dictionary(uniqueKeysWithValues: cards.map { ($0.id, $0) })
+    cardsInGame = Array(allCards.keys.shuffled().prefix(12))
   }
   
   
@@ -47,7 +52,7 @@ struct SetGame {
   
   mutating func selectCard(_ card: Card) {
     //Remove card if it was selected before
-    guard !selectedCards.compactMap({$0.id}).contains(card.id) else {
+    guard !selectedCards.compactMap({$0}).contains(card.id) else {
       deselectCard(card)
       return
     }
@@ -56,13 +61,12 @@ struct SetGame {
       selectNewCard(card)
       
       if selectedCards.count == 3 {
-        if checkIfCardsMatched() {
-          for card in selectedCards {
-            makeCardMatched(card)
-          }
-        } else {
-          for card in selectedCards {
-            makeCardMismatched(card)
+        let cardsMatched = checkIfCardsMatched()
+        for cardId in selectedCards {
+          if cardsMatched {
+            changeKeyArgumentsOfCard(withId: cardId, isMatched: true)
+          } else {
+            changeKeyArgumentsOfCard(withId: cardId, isMismatched: true)
           }
         }
       }
@@ -71,7 +75,9 @@ struct SetGame {
       if checkIfCardsMatched() {
         changeMatchedCardsWithNewCards()
       } else {
-        removeSelectionOfMismatchedCards()
+        for cardId in selectedCards {
+          changeKeyArgumentsOfCard(withId: cardId, isSelected: false, isMatched: false, isMismatched: false)
+        }
       }
       selectedCards = []
       selectNewCard(card)
@@ -82,44 +88,26 @@ struct SetGame {
   //MARK: - Card selection process helpers
   
   mutating func selectNewCard(_ card: Card) {
-    selectedCards.append(card)
-    changeKeyArgumentsOfCard(card, isSelected: true)
+    selectedCards.append(card.id)
+    changeKeyArgumentsOfCard(withId: card.id, isSelected: true)
   }
   
   mutating func deselectCard(_ card: Card) {
-    changeKeyArgumentsOfCard(card, isSelected: false, isMatched: false, isMismatched: false)
+    changeKeyArgumentsOfCard(withId: card.id, isSelected: false, isMatched: false, isMismatched: false)
     
-    if let choosenIndex = selectedCards.firstIndex(where: { $0.id == card.id }) {
+    if let choosenIndex = selectedCards.firstIndex(where: { $0 == card.id }) {
       selectedCards.remove(at: choosenIndex)
     }
   }
   
-  
-  
-  mutating func makeCardMatched(_ card: Card) {
-    changeKeyArgumentsOfCard(card, isMatched: true)
-  }
-  
-  mutating func removeSelectionOfMismatchedCards() {
-    for card in selectedCards {
-      changeKeyArgumentsOfCard(card, isSelected: false, isMatched: false, isMismatched: false)
-    }
-  }
-  
-  mutating func makeCardMismatched(_ card: Card) {
-    changeKeyArgumentsOfCard(card, isMismatched: true)
-  }
-  
-  
-  
   mutating func changeMatchedCardsWithNewCards() {
-    var availableElements = allCards.filter { !selectedCards.contains($0) && !cardsInGame.contains($0) }.shuffled()
+    var availableElements = allCards.filter { !selectedCards.contains($0.key) && !cardsInGame.contains($0.key) }.shuffled()
     
-    for card in selectedCards {
-      matchedCards.append(card)
-      if let choosenIndex = cardsInGame.firstIndex(where: { $0.id == card.id }) {
+    for cardId in selectedCards {
+      matchedCards.append(cardId)
+      if let choosenIndex = cardsInGame.firstIndex(where: { $0 == cardId }) {
         if let newEl = availableElements.popLast() {
-          cardsInGame[choosenIndex] = newEl
+          cardsInGame[choosenIndex] = newEl.key
         }
       }
     }
@@ -127,9 +115,9 @@ struct SetGame {
   
   
   func checkIfCardsMatched() -> Bool {
+    let selectedCards = selectedCards.compactMap { allCards[$0] }
     return findSets(from: selectedCards).count > 0
   }
-
   
 }
 
@@ -137,46 +125,18 @@ struct SetGame {
 
 //MARK: - Quick change of arguments of card in all arrays
 extension SetGame {
-  mutating func changeKeyArgumentsOfCard(_ card: Card, isSelected: Bool? = nil, isMatched: Bool? = nil, isMismatched: Bool? = nil) {
-    let indexInAllCards = allCards.firstIndex(where: { $0.id == card.id })
-    let indexInCardsInGame = cardsInGame.firstIndex(where: { $0.id == card.id })
-    let indexInSelectedCards = selectedCards.firstIndex(where: { $0.id == card.id })
+  mutating func changeKeyArgumentsOfCard(
+    withId id: String,
+    isSelected: Bool? = nil,
+    isMatched: Bool? = nil,
+    isMismatched: Bool? = nil
+  ) {
+    guard var card = allCards[id] else { return }
     
-    if let isSelected = isSelected {
-      if let indexInAllCards = indexInAllCards {
-        allCards[indexInAllCards].isSelected = isSelected
-      }
-      if let indexInCardsInGame = indexInCardsInGame {
-        cardsInGame[indexInCardsInGame].isSelected = isSelected
-      }
-      if let indexInSelectedCards = indexInSelectedCards {
-        selectedCards[indexInSelectedCards].isSelected = isSelected
-      }
-    }
-    if let isMatched = isMatched {
-      if let indexInAllCards = indexInAllCards {
-        allCards[indexInAllCards].isMatched = isMatched
-      }
-      if let indexInCardsInGame = indexInCardsInGame {
-        cardsInGame[indexInCardsInGame].isMatched = isMatched
-      }
-      if let indexInSelectedCards = indexInSelectedCards {
-        selectedCards[indexInSelectedCards].isMatched = isMatched
-      }
-    }
-    if let isMismatched = isMismatched {
-      if let indexInAllCards = indexInAllCards {
-        allCards[indexInAllCards].isMismatched = isMismatched
-      }
-      if let indexInCardsInGame = indexInCardsInGame {
-        cardsInGame[indexInCardsInGame].isMismatched = isMismatched
-      }
-      if let indexInSelectedCards = indexInSelectedCards {
-        selectedCards[indexInSelectedCards].isMismatched = isMismatched
-      }
-    }
+    if let isSelected = isSelected { card.isSelected = isSelected }
+    if let isMatched = isMatched { card.isMatched = isMatched }
+    if let isMismatched = isMismatched { card.isMismatched = isMismatched }
+    
+    allCards[id] = card
   }
-  
 }
-
-
