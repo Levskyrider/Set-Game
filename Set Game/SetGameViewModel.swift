@@ -16,8 +16,20 @@ class SetGameViewModel: ObservableObject {
     }
   }
   
+  var currentScore: Int {
+    return model.currentScore
+  }
+  
   init() {
     self.model = SetGame()
+  }
+  
+  func startNewGame() {
+    self.model = SetGame()
+  }
+  
+  func dealThreeMoreCards() {
+    model.dealThreeMoreCards()
   }
   
   func selectCard(_ card: Card) {

@@ -18,6 +18,8 @@ struct SetGame {
     cardsInGame.compactMap { allCards[$0] }
   }
   
+  var currentScore: Int = 0
+  
   init() {
     let cards = SetGame.generateAllCards()
     allCards = Dictionary(uniqueKeysWithValues: cards.map { ($0.id, $0) })
@@ -47,6 +49,16 @@ struct SetGame {
     return cardsArray
   }
   
+  //MARK: - Add three cards to cardsInGame
+  mutating func dealThreeMoreCards() {
+    var availableElements = allCards.filter { !matchedCards.contains($0.key) && !cardsInGame.contains($0.key) }.shuffled()
+    for _ in 0..<3 {
+      guard !availableElements.isEmpty else { break }
+      let card = availableElements.removeFirst()
+      cardsInGame.append(card.key)
+    }
+  }
+  
   
   //MARK: - Card selection
   
@@ -65,19 +77,18 @@ struct SetGame {
         for cardId in selectedCards {
           if cardsMatched {
             changeKeyArgumentsOfCard(withId: cardId, isMatched: true)
+            changeMatchedCardsWithNewCards()
+            selectedCards = []
           } else {
             changeKeyArgumentsOfCard(withId: cardId, isMismatched: true)
           }
         }
+        currentScore += cardsMatched ? 3 : -1
       }
       
     } else if selectedCards.count == 3 {
-      if checkIfCardsMatched() {
-        changeMatchedCardsWithNewCards()
-      } else {
-        for cardId in selectedCards {
-          changeKeyArgumentsOfCard(withId: cardId, isSelected: false, isMatched: false, isMismatched: false)
-        }
+      for cardId in selectedCards {
+        changeKeyArgumentsOfCard(withId: cardId, isSelected: false, isMatched: false, isMismatched: false)
       }
       selectedCards = []
       selectNewCard(card)
@@ -101,7 +112,7 @@ struct SetGame {
   }
   
   mutating func changeMatchedCardsWithNewCards() {
-    var availableElements = allCards.filter { !selectedCards.contains($0.key) && !cardsInGame.contains($0.key) }.shuffled()
+    var availableElements = allCards.filter { !matchedCards.contains($0.key) && !cardsInGame.contains($0.key) }.shuffled()
     
     for cardId in selectedCards {
       matchedCards.append(cardId)
@@ -112,7 +123,6 @@ struct SetGame {
       }
     }
   }
-  
   
   func checkIfCardsMatched() -> Bool {
     let selectedCards = selectedCards.compactMap { allCards[$0] }

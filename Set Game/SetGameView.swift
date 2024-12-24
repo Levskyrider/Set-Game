@@ -12,11 +12,19 @@ struct SetGameView: View {
   private let aspectRatio: CGFloat = 2/3
   
   var body: some View {
+    Text("Set Game").font(.largeTitle).bold()
+    Text("Score: \(viewModel.currentScore)").font(.title2)
     cards
       .animation(.default, value: viewModel.cardsInGame)
     
+    Button("Deal 3 More Cards") {
+      viewModel.dealThreeMoreCards()
+    }
     Button("Find set") {
       print(viewModel.findSets())
+    }
+    Button("New game") {
+      viewModel.startNewGame()
     }
   }
   
