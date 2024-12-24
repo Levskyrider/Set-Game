@@ -44,7 +44,7 @@ struct CardView: View {
     ZStack {
       Rectangle()
         .fill(Color.white)
-        .stroke(card.isSelected ? (card.isMatched ? Color.green : Color.yellow) : Color.gray, lineWidth: 5)
+        .stroke(card.isSelected ? (card.isMismatched ? Color.red : (card.isMatched ? Color.green : Color.yellow)) : Color.gray, lineWidth: 5)
       VStack {
         ForEach(0..<count, id: \.self) { _ in
           AnyView(figureView)
