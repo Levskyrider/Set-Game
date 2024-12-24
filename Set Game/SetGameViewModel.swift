@@ -10,13 +10,25 @@ import SwiftUI
 class SetGameViewModel: ObservableObject {
   @Published private var model: SetGame
   
-  var cardsInGame: [Card] = []
+ 
+ // var selectedCards: [Card] = []
+  
+  var cardsInGame: [Card] {
+    get {
+      return model.cardsInGame
+    }
+  }
   
   init() {
     self.model = SetGame()
-    cardsInGame = Array(model.allCards.shuffled().prefix(12))
   }
   
+  func selectCard(_ card: Card) {
+    model.selectCard(card)
+    print("Good")
+  
+    //selectedCards.append(card)
+  }
 
   
 }

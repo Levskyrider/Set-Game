@@ -14,12 +14,19 @@ struct SetGameView: View {
   var body: some View {
     cards
       .animation(.default, value: viewModel.cardsInGame)
+    Button("Find set") {
+      print(findSets(from: viewModel.cardsInGame))
+    }
   }
   
   private var cards: some View {
     AspectVGrid(viewModel.cardsInGame, aspectRatio: aspectRatio) { card in
       CardView(card: card)
-        .padding(4)
+        .padding(15)
+        .onTapGesture {
+          print("GGWP")
+          viewModel.selectCard(card)
+        }
     }
   }
   
@@ -32,11 +39,19 @@ struct CardView: View {
   
   var body: some View {
     let (count, figureView) = getCountAndFigureForCard(card)
-    VStack {
-      ForEach(0..<count, id: \.self) { _ in
-        AnyView(figureView)
+    
+
+    ZStack {
+      Rectangle()
+        .fill(Color.white)
+        .stroke(card.isSelected ? (card.isMatched ? Color.green : Color.yellow) : Color.gray, lineWidth: 5)
+      VStack {
+        ForEach(0..<count, id: \.self) { _ in
+          AnyView(figureView)
+        }
       }
     }
+    
   }
   
 }
